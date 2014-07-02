@@ -5,6 +5,19 @@
   (:use-macros
     [dommy.macros :only [node sel sel1]]))
 
+
+(def game-state
+  {0 {0 2, 1 0, 2 0, 3 0},
+   1 {0 2, 1 0, 2 0, 3 0},
+   2 {0 2, 1 0, 2 0, 3 0},
+   3 {0 2, 1 0, 2 0, 3 0}})
+
+;; Utils
+(defn- class-sel1 [style-class]
+  (.item
+   (.getElementsByClassName js/document style-class) 0))
+
+;; Render UI
 (defn- add-row [tbl col-num row-idx]
   (let [row (node [:tr])]
     (dommy/append! tbl row)
@@ -14,17 +27,6 @@
 (defn- create-board [size]
     (dotimes [r size]
       (add-row (sel1 :.board) size r)))
-
-(def game-state
-  [["2" "0" "0" "0"]
-   ["0" "0" "0" "2"]
-   ["2" "0" "0" "0"]
-   ["0" "0" "0" "0"]])
-
-
-(defn- class-sel1 [style-class]
-  (.item
-   (.getElementsByClassName js/document style-class) 0))
 
 (defn- update-cell! [row col value]
   (dommy/set-text! (class-sel1 (str row col)) value))
@@ -39,6 +41,7 @@
     (create-board 4)
     (update! game-state)))
 
+;; Event handling
 (defn step-state
   [evt]
   ; left = 37
@@ -50,6 +53,8 @@
 
 (dommy/listen! (sel1 :body) :keyup step-state!)
 
+
+;; Update
 (defn get-col [col-idx state]
   (apply hash-map
          (flatten
@@ -59,19 +64,68 @@
 (defn get-row [row-idx state]
   (get state row-idx))
 
-(defn merge-left [row-idx state]
-  (let [row (get state row-idx)]
-    (for [[col-idx val]
-          (map-indexed list
-                       (filter #(not= 0 (second %)) (get-row row-idx state)))]
-      (assoc state row-idx (assoc {0 0, 1 0, 2 0, 3 0} col-idx val)))))
+(defn filter-zeros [row]
+  (map #(second %1) (filter #(not= 0 (second %)) row)))
 
-(merge-left 0 game-state)
 
-(def
-  game-state
-  (assoc game-state 0 (assoc (get game-state 0) 0 5)))
-game-state
+(defn m2 [prev tail acc]
+  (cond
+   (= (count tail) 0)
+   (reverse (if (= prev (first tail))
+              (cons (+ prev (first tail)) acc)
+              (cons prev acc)))
+   (= (count tail) 1)
+   (reverse (if (= prev (first tail))
+              (cons (+ prev (first tail)) acc)
+              (cons (first tail) (cons prev acc))))
+   :else (recur (first (rest tail))
+             (rest (rest tail))
+             (if (= prev (first tail))
+               (cons (+ prev (first tail)) acc)
+               (cons (first tail) (cons prev acc))))))
+
+
+(loop [prev 1 tail [1 2] acc []]
+  (cond
+   (<= (count tail) 1)
+   (reverse
+    (if (= prev (first tail))
+      (cons (+ prev (first tail)) acc)
+      (if (nil? (first tail))
+        (cons prev acc)
+        (cons (first tail) (cons prev acc)))))
+   :else (recur (first (rest tail))
+             (rest (rest tail))
+             (if (= prev (first tail))
+               (cons (+ prev (first tail)) acc)
+               (cons (first tail) (cons prev acc))))))
+
+(m2 3 [1 2 2 2 2 5 5 5] [])
+
+(defn merge-sum [[start & coll]]
+  (flatten (reverse
+            (reduce
+             #(if (= %2 (first %1))
+                (cons (list (+ %2 (first %1))) (rest %1))
+                (cons %2 %1)) (list start) coll))))
+
+
+(def game-state2
+  {0 {0 2, 1 3, 2 0, 3 3},
+   1 {0 2, 1 0, 2 0, 3 0},
+   2 {0 2, 1 0, 2 0, 3 0},
+   3 {0 2, 1 0, 2 0, 3 0}})
+
+
+(zero-pad 4 (merge-sum (reverse (filter-zeros (get game-state2 0)))))
+
+(defn zero-pad [len coll]
+  (concat coll (take (- len (count coll)) (repeat 0))))
+
+
+
+
+
 
 
 
