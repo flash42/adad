@@ -7,7 +7,7 @@
 
 
 (def game-state
-  {0 {0 2, 1 0, 2 0, 3 2},
+  {0 {0 2, 1 2, 2 2, 3 2},
    1 {0 2, 1 0, 2 0, 3 0},
    2 {0 2, 1 0, 2 0, 3 0},
    3 {0 2, 1 0, 2 0, 3 0}})
@@ -29,7 +29,9 @@
       (add-row (sel1 :.board) size r)))
 
 (defn- update-cell! [row col value]
-  (dommy/set-text! (class-sel1 (str row col)) value))
+  (dommy/set-text! (class-sel1
+                    (str row col))
+                   (if (nil? value) 0 value )))
 
 (defn- update! [state]
   (doseq [[x row] (map identity state)
@@ -73,27 +75,52 @@
 (defn zero-pad [len coll]
   (concat coll (take (- len (count coll)) (repeat 0))))
 
+(defn mapify [coll]
+  (apply hash-map (flatten (map-indexed vector coll))))
+
 (defn calc-row [row]
-  (apply hash-map
-         (flatten (map-indexed vector
-                               (zero-pad (count row) (merge-sum
-                                            (filter-zeros row)))))))
+  (zero-pad (count row) (merge-sum
+                         (filter-zeros row))))
 
 (defn calc-left-merge [state]
-  (map #(calc-row (second %)) (map identity state)))
+  (map #(mapify (calc-row (second %))) (map identity state)))
+
+(defn calc-right-merge [state]
+  (map #(mapify (reverse (calc-row (reverse (second %))))) (map identity state)))
+
+
+
+(defn pivot [state]
+  (let [size (count (second (first state)))]
+    (apply hash-map
+           (interleave (range 0 size)
+                       (map mapify (apply map vector
+                                          (map #(map second (second %)) state)))))))
+
 
 (defn calc-state! [dir state]
   (let [updated-state
         (cond
          (= dir :left)
          (apply hash-map
-                (flatten(map-indexed vector (calc-left-merge state)))))]
+                (flatten(map-indexed vector (calc-left-merge state))))
+         (= dir :right)
+         (apply hash-map
+                (flatten(map-indexed vector (calc-right-merge state))))
+         (= dir :up)
+         (pivot
+          (apply hash-map
+                 (flatten (map-indexed vector (calc-left-merge (pivot state))))))
+         (= dir :down)
+         (pivot
+          (apply hash-map
+                 (flatten (map-indexed vector (calc-right-merge (pivot state))))))
+         )]
     (do
       (def game-state updated-state)
       updated-state)))
 
-;; (calc-state! :left game-state2)
-
+;;game-state
 
 ;; Event handling
 (defn step-state!
@@ -102,8 +129,15 @@
   ; up = 38
   ; right = 39
   ; down = 40
-  (when (= 37 (.-keyCode evt))
-    (update! (calc-state! :left game-state))))
+  (cond
+   (= 37 (.-keyCode evt))
+   (update! (calc-state! :left game-state))
+   (= 39 (.-keyCode evt))
+   (update! (calc-state! :right game-state))
+   (= 38 (.-keyCode evt))
+   (update! (calc-state! :up game-state))
+   (= 40 (.-keyCode evt))
+   (update! (calc-state! :down game-state))))
 
 ;;(calc-state! :left game-state)
 
