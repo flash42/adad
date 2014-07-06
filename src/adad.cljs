@@ -66,11 +66,12 @@
    3 {0 2, 1 0, 2 0, 3 0}})
 
 (defn merge-sum [[start & coll]]
+  (if (nil? start) ()
   (flatten (reverse
             (reduce
              #(if (= %2 (first %1))
                 (cons (list (+ %2 (first %1))) (rest %1))
-                (cons %2 %1)) (list start) coll))))
+                (cons %2 %1)) (list start) coll)))))
 
 (defn zero-pad [len coll]
   (concat coll (take (- len (count coll)) (repeat 0))))
