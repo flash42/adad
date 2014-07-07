@@ -6,12 +6,6 @@
     [dommy.macros :only [node sel sel1]]))
 
 
-(def game-state
-  {0 {0 2, 1 2, 2 2, 3 2},
-   1 {0 2, 1 0, 2 0, 3 0},
-   2 {0 2, 1 0, 2 0, 3 0},
-   3 {0 2, 1 0, 2 0, 3 0}})
-
 ;; Utils
 (defn- class-sel1 [style-class]
   (.item
@@ -38,6 +32,12 @@
           [y value] (map identity row)]
       (update-cell! x y value)))
 
+(def game-state
+  {0 {0 2, 1 2, 2 0, 3 2},
+   1 {0 2, 1 0, 2 0, 3 0},
+   2 {0 2, 1 0, 2 0, 3 0},
+   3 {0 2, 1 0, 2 0, 3 0}})
+
 (defn ^:export gameloop []
   (do
     (create-board 4)
@@ -58,12 +58,6 @@
 
 (defn filter-zeros [row]
   (map #(second %1) (filter #(not= 0 (second %)) row)))
-
-(def game-state2
-  {0 {0 2, 1 3, 2 0, 3 3},
-   1 {0 2, 1 0, 2 0, 3 0},
-   2 {0 2, 1 0, 2 0, 3 0},
-   3 {0 2, 1 0, 2 0, 3 0}})
 
 (defn merge-sum [[start & coll]]
   (if (nil? start) ()
@@ -121,7 +115,38 @@
       (def game-state updated-state)
       updated-state)))
 
-;;game-state
+
+;; Game logic
+(defn add-rand! [stage]
+  (let [[c, r]
+        (let [[col-idx, row-idxs]
+              (rand-nth
+               (filter
+                #(not (empty? (second %)))
+                (map
+                (fn [pair]
+                  (list
+                   (first pair)
+                   (map #(first %) (filter #(= 0 (second %))
+                                           (seq (second pair))))))
+                (seq stage))))]
+          (list col-idx (rand-nth row-idxs)))]
+    (do
+      (def game-state
+        (assoc stage c (assoc (get stage c) r 2))))
+    game-state))
+
+(defn step-next [stage]
+  (cond
+   (empty?
+    (flatten
+     (map
+      (fn [pair]
+        (filter #(not (= 0 %))
+                (map #(val %) (val pair)))) (map identity stage))))
+   (js/alert "End of game")
+   :else
+   (add-rand! stage)))
 
 ;; Event handling
 (defn step-state!
@@ -130,15 +155,17 @@
   ; up = 38
   ; right = 39
   ; down = 40
-  (cond
-   (= 37 (.-keyCode evt))
-   (update! (calc-state! :left game-state))
-   (= 39 (.-keyCode evt))
-   (update! (calc-state! :right game-state))
-   (= 38 (.-keyCode evt))
-   (update! (calc-state! :up game-state))
-   (= 40 (.-keyCode evt))
-   (update! (calc-state! :down game-state))))
+  (do
+    (cond
+     (= 37 (.-keyCode evt))
+     (update! (calc-state! :left game-state))
+     (= 39 (.-keyCode evt))
+     (update! (calc-state! :right game-state))
+     (= 38 (.-keyCode evt))
+     (update! (calc-state! :up game-state))
+     (= 40 (.-keyCode evt))
+     (update! (calc-state! :down game-state)))
+    (step-next game-state)))
 
 ;;(calc-state! :left game-state)
 
