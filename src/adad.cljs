@@ -9,7 +9,7 @@
     [dommy.macros :only [sel1]]))
 
 
-(defn ^:export gameloop []
+(defn ^:export init []
   (do
     (create-board 4)
     (update! game-state)))

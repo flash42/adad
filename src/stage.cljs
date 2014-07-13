@@ -43,3 +43,22 @@
 
 (defn set-state! [state]
   (def game-state state))
+
+
+(defn merge-left [state]
+  (apply hash-map
+         (flatten(map-indexed vector (calc-left-merge state)))))
+
+(defn merge-right [state]
+  (apply hash-map
+         (flatten(map-indexed vector (calc-right-merge state)))))
+
+(defn merge-up [state]
+  (pivot
+   (apply hash-map
+          (flatten (map-indexed vector (calc-left-merge (pivot state)))))))
+
+(defn merge-down [state]
+  (pivot
+   (apply hash-map
+          (flatten (map-indexed vector (calc-right-merge (pivot state)))))))

@@ -1,26 +1,20 @@
 (ns game-logic
   (:use [adad-ui :only [update!]]
         [adad-stage :only
-         [game-state set-state! pivot calc-left-merge calc-right-merge]]))
+         [game-state set-state! merge-right merge-left merge-up merge-down]]))
 
 
 (defn calc-state! [dir state]
   (let [updated-state
         (cond
          (= dir :left)
-         (apply hash-map
-                (flatten(map-indexed vector (calc-left-merge state))))
+         (merge-left state)
          (= dir :right)
-         (apply hash-map
-                (flatten(map-indexed vector (calc-right-merge state))))
+         (merge-right state)
          (= dir :up)
-         (pivot
-          (apply hash-map
-                 (flatten (map-indexed vector (calc-left-merge (pivot state))))))
+         (merge-up state)
          (= dir :down)
-         (pivot
-          (apply hash-map
-                 (flatten (map-indexed vector (calc-right-merge (pivot state))))))
+         (merge-down state)
          )]
     (do
       (set-state! updated-state)
