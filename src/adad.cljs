@@ -152,6 +152,9 @@
 (defn wait [ms func]
   (js* "setTimeout(~{func}, ~{ms})"))
 
+(defn add-random-element! []
+  (wait 400 (fn [] (update! (step-next! game-state)))))
+
 ;; Event handling
 (defn step-state!
   [evt]
@@ -159,17 +162,20 @@
   ; up = 38
   ; right = 39
   ; down = 40
-  (do
-    (cond
-     (= 37 (.-keyCode evt))
+  (cond
+   (= 37 (.-keyCode evt))
+   (do
      (update! (calc-state! :left game-state))
-     (= 39 (.-keyCode evt))
-     (update! (calc-state! :right game-state))
-     (= 38 (.-keyCode evt))
-     (update! (calc-state! :up game-state))
-     (= 40 (.-keyCode evt))
-     (update! (calc-state! :down game-state)))
-    (wait 400 (fn [] (update! (step-next! game-state))))))
+     (add-random-element!))
+   (= 39 (.-keyCode evt))
+   (do (update! (calc-state! :right game-state))
+     (add-random-element!))
+   (= 38 (.-keyCode evt))
+   (do (update! (calc-state! :up game-state))
+     (add-random-element!))
+   (= 40 (.-keyCode evt))
+   (do (update! (calc-state! :down game-state))
+     (add-random-element!))))
 
 ;;(update! (add-rand! {0 {0 0, 1 1}}))
 
