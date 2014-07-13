@@ -21,7 +21,7 @@
                     (str row col))
                    (if (not (= 0 value)) value)))
 
-(defn update! [state]
+(defn update-ui! [state]
   (doseq [[x row] (map identity state)
           [y value] (map identity row)]
       (update-cell! x y value)))

@@ -2,9 +2,9 @@
   (:require
    [dommy.core :as dommy]
    [adad-ui :as ui])
-  (:use [adad-ui :only [update! create-board]]
+  (:use [adad-ui :only [update-ui! create-board]]
         [adad-stage :only [game-state]]
-        [game-logic :only [step-state!]])
+        [game-logic :only [game-key-handler!]])
   (:use-macros
     [dommy.macros :only [sel1]]))
 
@@ -12,7 +12,7 @@
 (defn ^:export init []
   (do
     (create-board 4)
-    (update! game-state)))
+    (update-ui! game-state)))
 
 
-(dommy/listen! (sel1 :body) :keyup step-state!)
+(dommy/listen! (sel1 :body) :keyup game-key-handler!)

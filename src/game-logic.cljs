@@ -1,5 +1,5 @@
 (ns game-logic
-  (:use [adad-ui :only [update!]]
+  (:use [adad-ui :only [update-ui!]]
         [adad-stage :only
          [game-state set-state! merge-right merge-left merge-up merge-down]]))
 
@@ -20,7 +20,7 @@
       (set-state! updated-state)
       game-state)))
 
-(defn add-rand! [stage]
+(defn add-rand-to-stage! [stage]
   (let [[c, r]
         (let [[col-idx, row-idxs]
               (rand-nth
@@ -38,7 +38,13 @@
       (set-state! (assoc stage c (assoc (get stage c) r 2)))
       game-state)))
 
-(defn step-next! [stage]
+(defn wait [ms func]
+  (js* "setTimeout(~{func}, ~{ms})"))
+
+(defn add-random-element! [stage]
+  (wait 400 (fn [] (update-ui! (add-rand-to-stage! stage)))))
+
+(defn next-round! [stage]
   (cond
    (empty?
     (flatten
@@ -48,30 +54,23 @@
                 (map #(val %) (val pair)))) (map identity stage))))
    (js/alert "End of game")
    :else
-   (add-rand! stage)))
+   (add-random-element! stage)))
 
-
-(defn wait [ms func]
-  (js* "setTimeout(~{func}, ~{ms})"))
-
-(defn add-random-element! []
-  (wait 400 (fn [] (update! (step-next! game-state)))))
 
 ;; Event handling
-(defn step-state!
+(defn game-key-handler!
   [evt]
   (cond
    (= 37 (.-keyCode evt))
-   (do
-     (update! (calc-state! :left game-state))
-     (add-random-element!))
+   (do (update-ui! (calc-state! :left game-state))
+     (next-round! game-state))
    (= 39 (.-keyCode evt))
-   (do (update! (calc-state! :right game-state))
-     (add-random-element!))
+   (do (update-ui! (calc-state! :right game-state))
+     (next-round! game-state))
    (= 38 (.-keyCode evt))
-   (do (update! (calc-state! :up game-state))
-     (add-random-element!))
+   (do (update-ui! (calc-state! :up game-state))
+     (next-round! game-state))
    (= 40 (.-keyCode evt))
-   (do (update! (calc-state! :down game-state))
-     (add-random-element!))))
+   (do (update-ui! (calc-state! :down game-state))
+     (next-round! game-state))))
 
