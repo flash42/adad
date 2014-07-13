@@ -1,10 +1,12 @@
 (ns game-logic
-  (:use [adad-ui :only [update-ui!]]
-        [adad-stage :only
-         [game-state set-state! merge-right merge-left merge-up merge-down]]))
+  (:use
+   [adad-ui :only [update-ui!]]
+   [adad-utils :only [wait]]
+   [adad-stage :only
+    [game-state set-state! merge-right merge-left merge-up merge-down]]))
 
 
-(defn calc-state! [dir state]
+(defn- merge-stage! [dir state]
   (let [updated-state
         (cond
          (= dir :left)
@@ -20,7 +22,7 @@
       (set-state! updated-state)
       game-state)))
 
-(defn add-rand-to-stage! [stage]
+(defn- add-rand-to-stage! [stage]
   (let [[c, r]
         (let [[col-idx, row-idxs]
               (rand-nth
@@ -38,13 +40,10 @@
       (set-state! (assoc stage c (assoc (get stage c) r 2)))
       game-state)))
 
-(defn wait [ms func]
-  (js* "setTimeout(~{func}, ~{ms})"))
-
-(defn add-random-element! [stage]
+(defn- add-random-element! [stage]
   (wait 400 (fn [] (update-ui! (add-rand-to-stage! stage)))))
 
-(defn next-round! [stage]
+(defn- next-round! [stage]
   (cond
    (empty?
     (flatten
@@ -64,8 +63,8 @@
 (def key-down 40)
 
 
-(defn handle-key [dir]
-  (update-ui! (calc-state! dir game-state))
+(defn- handle-key [dir]
+  (update-ui! (merge-stage! dir game-state))
   (next-round! game-state))
 
 (defn game-key-handler!
