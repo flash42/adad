@@ -58,19 +58,25 @@
 
 
 ;; Event handling
+(def key-left 37)
+(def key-right 39)
+(def key-up 38)
+(def key-down 40)
+
+
+(defn handle-key [dir]
+  (update-ui! (calc-state! dir game-state))
+  (next-round! game-state))
+
 (defn game-key-handler!
   [evt]
   (cond
-   (= 37 (.-keyCode evt))
-   (do (update-ui! (calc-state! :left game-state))
-     (next-round! game-state))
-   (= 39 (.-keyCode evt))
-   (do (update-ui! (calc-state! :right game-state))
-     (next-round! game-state))
-   (= 38 (.-keyCode evt))
-   (do (update-ui! (calc-state! :up game-state))
-     (next-round! game-state))
-   (= 40 (.-keyCode evt))
-   (do (update-ui! (calc-state! :down game-state))
-     (next-round! game-state))))
+   (= key-left (.-keyCode evt))
+   (handle-key :left)
+   (= key-right (.-keyCode evt))
+   (handle-key :right)
+   (= key-up (.-keyCode evt))
+   (handle-key :up)
+   (= key-down (.-keyCode evt))
+   (handle-key :down)))
 
