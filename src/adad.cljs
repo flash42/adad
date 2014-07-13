@@ -25,7 +25,7 @@
 (defn- update-cell! [row col value]
   (dommy/set-text! (class-sel1
                     (str row col))
-                   (if (nil? value) 0 value )))
+                   (if (not (= 0 value)) value)))
 
 (defn- update! [state]
   (doseq [[x row] (map identity state)
@@ -136,7 +136,7 @@
         (assoc stage c (assoc (get stage c) r 2))))
     game-state))
 
-(defn step-next [stage]
+(defn step-next! [stage]
   (cond
    (empty?
     (flatten
@@ -147,6 +147,10 @@
    (js/alert "End of game")
    :else
    (add-rand! stage)))
+
+
+(defn wait [ms func]
+  (js* "setTimeout(~{func}, ~{ms})"))
 
 ;; Event handling
 (defn step-state!
@@ -165,8 +169,8 @@
      (update! (calc-state! :up game-state))
      (= 40 (.-keyCode evt))
      (update! (calc-state! :down game-state)))
-    (step-next game-state)))
+    (wait 400 (fn [] (update! (step-next! game-state))))))
 
-;;(calc-state! :left game-state)
+;;(update! (add-rand! {0 {0 0, 1 1}}))
 
 (dommy/listen! (sel1 :body) :keyup step-state!)
