@@ -22,9 +22,6 @@
 (defn- zero-pad [len coll]
   (concat coll (take (- len (count coll)) (repeat 0))))
 
-(defn- mapify [coll]
-  coll)
-
 (defn- calc-row [row]
   (zero-pad (count row) (merge-sum
                          (filter-zeros row))))
@@ -48,15 +45,15 @@
   (def game-state (vec state)))
 
 (defn merge-left [state]
-  (mapify (calc-left-merge state)))
+  (calc-left-merge state))
 
 (defn merge-right [state]
-  (mapify (calc-right-merge state)))
+  (calc-right-merge state))
 
 (defn merge-up [state]
   (pivot
-   (mapify (calc-left-merge (pivot state)))))
+   (calc-left-merge (pivot state))))
 
 (defn merge-down [state]
   (pivot
-   (mapify (calc-right-merge (pivot state)))))
+   (calc-right-merge (pivot state))))
