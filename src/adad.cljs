@@ -16,6 +16,6 @@
     (update-ui! @game-state)))
 
 (add-watch game-state
-           :redraw (fn [_ _ _ new] (wait 400 (fn [] (update-ui! new)))))
+           :redraw (fn [_ _ _ new] (wait 200 (fn [] (update-ui! new)))))
 
 (dommy/listen! (sel1 :body) :keyup game-key-handler!)

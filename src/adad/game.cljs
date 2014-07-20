@@ -44,7 +44,7 @@
 
 (defn- handle-key! [dir]
   (set-state! (merge-stage dir @game-state))
-  (wait 400 (fn [] (set-state! (next-round @game-state)))))
+  (wait 300 (fn [] (set-state! (next-round @game-state)))))
 
 ;; TODO push to event bus from here
 (defn game-key-handler!
