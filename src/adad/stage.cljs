@@ -2,10 +2,10 @@
 
 ;; Initial Game state
 (def game-state
-  [[2, 2, 0, 2],
+  (atom [[2, 2, 0, 2],
    [0, 0, 0, 0],
    [0, 0, 0, 0],
-   [0, 0, 0, 0]])
+   [0, 0, 0, 0]]))
 
 
 (defn- filter-zeros [row]
@@ -42,7 +42,7 @@
 
 ;; Public API
 (defn set-state! [state]
-  (def game-state (vec state)))
+  (swap! game-state (fn [curr new] (vec new)) state))
 
 (defn merge-left [state]
   (calc-left-merge state))
