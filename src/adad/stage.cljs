@@ -2,14 +2,14 @@
 
 ;; Initial Game state
 (def game-state
-  {0 {0 2, 1 2, 2 0, 3 2},
-   1 {0 0, 1 0, 2 0, 3 0},
-   2 {0 0, 1 0, 2 0, 3 0},
-   3 {0 0, 1 0, 2 0, 3 0}})
+  [[2, 2, 0, 2],
+   [0, 0, 0, 0],
+   [0, 0, 0, 0],
+   [0, 0, 0, 0]])
 
 
 (defn- filter-zeros [row]
-  (map #(second %1) (filter #(not= 0 (second %)) row)))
+  (filter #(not= 0 %) row))
 
 (defn- merge-sum [[start & coll]]
   (if (nil? start) ()
@@ -23,43 +23,40 @@
   (concat coll (take (- len (count coll)) (repeat 0))))
 
 (defn- mapify [coll]
-  (apply hash-map (flatten (map-indexed vector coll))))
+  coll)
 
 (defn- calc-row [row]
   (zero-pad (count row) (merge-sum
                          (filter-zeros row))))
 
 (defn- calc-left-merge [state]
-  (map #(mapify (calc-row (second %))) (map identity state)))
+  (map calc-row state))
 
 (defn- calc-right-merge [state]
-  (map #(mapify (reverse (calc-row (reverse (second %))))) (map identity state)))
+  (map #(reverse (calc-row (reverse %))) state))
+
 
 (defn- pivot [state]
-  (let [size (count (second (first state)))]
-    (apply hash-map
-           (interleave (range 0 size)
-                       (map mapify (apply map vector
-                                          (map #(map second (second %)) state)))))))
+  (let [last-idx (count state)]
+    (into []
+          (map (fn [pos]
+                 (into [ ]
+                       (map (fn [row] (nth row pos)) state))) (range 0 last-idx)))))
 
 ;; Public API
 (defn set-state! [state]
-  (def game-state state))
+  (def game-state (vec state)))
 
 (defn merge-left [state]
-  (apply hash-map
-         (flatten(map-indexed vector (calc-left-merge state)))))
+  (mapify (calc-left-merge state)))
 
 (defn merge-right [state]
-  (apply hash-map
-         (flatten(map-indexed vector (calc-right-merge state)))))
+  (mapify (calc-right-merge state)))
 
 (defn merge-up [state]
   (pivot
-   (apply hash-map
-          (flatten (map-indexed vector (calc-left-merge (pivot state)))))))
+   (mapify (calc-left-merge (pivot state)))))
 
 (defn merge-down [state]
   (pivot
-   (apply hash-map
-          (flatten (map-indexed vector (calc-right-merge (pivot state)))))))
+   (mapify (calc-right-merge (pivot state)))))

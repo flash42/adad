@@ -22,6 +22,6 @@
                    (if (not (= 0 value)) value)))
 
 (defn update-ui! [state]
-  (doseq [[x row] (map identity state)
-          [y value] (map identity row)]
+  (doseq [[x row] (map-indexed vector state)
+          [y value] (map-indexed vector row)]
       (update-cell! x y value)))
