@@ -1,4 +1,4 @@
-(ns adad-stage)
+(ns adad.stage)
 
 ;; Initial Game state
 (def game-state
@@ -6,28 +6,6 @@
    1 {0 0, 1 0, 2 0, 3 0},
    2 {0 0, 1 0, 2 0, 3 0},
    3 {0 0, 1 0, 2 0, 3 0}})
-
-(defn set-state! [state]
-  (def game-state state))
-
-(defn merge-left [state]
-  (apply hash-map
-         (flatten(map-indexed vector (calc-left-merge state)))))
-
-(defn merge-right [state]
-  (apply hash-map
-         (flatten(map-indexed vector (calc-right-merge state)))))
-
-(defn merge-up [state]
-  (pivot
-   (apply hash-map
-          (flatten (map-indexed vector (calc-left-merge (pivot state)))))))
-
-(defn merge-down [state]
-  (pivot
-   (apply hash-map
-          (flatten (map-indexed vector (calc-right-merge (pivot state)))))))
-
 
 
 (defn- filter-zeros [row]
@@ -63,3 +41,25 @@
            (interleave (range 0 size)
                        (map mapify (apply map vector
                                           (map #(map second (second %)) state)))))))
+
+;; Public API
+(defn set-state! [state]
+  (def game-state state))
+
+(defn merge-left [state]
+  (apply hash-map
+         (flatten(map-indexed vector (calc-left-merge state)))))
+
+(defn merge-right [state]
+  (apply hash-map
+         (flatten(map-indexed vector (calc-right-merge state)))))
+
+(defn merge-up [state]
+  (pivot
+   (apply hash-map
+          (flatten (map-indexed vector (calc-left-merge (pivot state)))))))
+
+(defn merge-down [state]
+  (pivot
+   (apply hash-map
+          (flatten (map-indexed vector (calc-right-merge (pivot state)))))))

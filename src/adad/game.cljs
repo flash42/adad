@@ -1,8 +1,8 @@
-(ns game-logic
+(ns adad.game
   (:use
-   [adad-ui :only [update-ui!]]
-   [adad-utils :only [wait]]
-   [adad-stage :only
+   [adad.ui :only [update-ui!]]
+   [adad.utils :only [wait]]
+   [adad.stage :only
     [game-state set-state! merge-right merge-left merge-up merge-down]]))
 
 

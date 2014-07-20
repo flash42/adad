@@ -1,10 +1,10 @@
 (ns adad
   (:require
    [dommy.core :as dommy]
-   [adad-ui :as ui])
-  (:use [adad-ui :only [update-ui! create-board]]
-        [adad-stage :only [game-state]]
-        [game-logic :only [game-key-handler!]])
+   [adad.ui :as ui])
+  (:use [adad.ui :only [update-ui! create-board]]
+        [adad.stage :only [game-state]]
+        [adad.game :only [game-key-handler!]])
   (:use-macros
     [dommy.macros :only [sel1]]))
 

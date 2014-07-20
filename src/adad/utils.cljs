@@ -1,4 +1,4 @@
-(ns adad-utils)
+(ns adad.utils)
 
 (defn wait [ms func]
   (js* "setTimeout(~{func}, ~{ms})"))

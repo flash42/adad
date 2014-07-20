@@ -1,8 +1,8 @@
-(ns adad-ui
+(ns adad.ui
     (:require
      [dommy.utils :as utils]
      [dommy.core :as dommy])
-    (:use [adad-utils :only [class-sel1]])
+    (:use [adad.utils :only [class-sel1]])
   (:use-macros
     [dommy.macros :only [node sel1]]))
 
