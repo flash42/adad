@@ -57,3 +57,6 @@
 (defn merge-down [state]
   (pivot
    (calc-right-merge (pivot state))))
+
+(defn replace-field [col row stage value]
+  (assoc stage col (assoc (vec (get stage col)) row value)))

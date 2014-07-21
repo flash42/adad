@@ -3,7 +3,7 @@
    [adad.ui :only [update-ui!]]
    [adad.utils :only [wait]]
    [adad.stage :only
-    [game-state set-state! merge-right merge-left merge-up merge-down]]))
+    [game-state set-state! merge-right merge-left merge-up merge-down replace-field]]))
 
 
 (defn- merge-stage [dir state]
@@ -24,7 +24,7 @@
                [y val] (map-indexed vector row)
                :when (= 0 val)]
            [x y]))]
-    (assoc stage c (assoc (vec (get stage c)) r 2))))
+    (replace-field c r stage 2)))
 
 (defn- next-round [stage]
   (cond
